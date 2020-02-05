@@ -17,6 +17,6 @@ twoStage.classical <- function(d, period) {
   n <- length(d)
   agg_vec <- rep(1:period,ceiling(n/period))
   agg <- aggregate(d,list(vec = agg_vec[1:n]),mean)
-  return(agg[,2])
+  return(agg$x)
 
 }

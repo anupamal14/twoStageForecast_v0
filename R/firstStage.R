@@ -10,7 +10,7 @@
 #'
 #' @param p Number of samples in the holdout period.
 #'
-#' @param seas_levels periods corresponding to levels of
+#' @param seas_periods periods corresponding to levels of
 #'     seasonality in the data
 #'
 #' @param regMat covariates to be used for regression.
@@ -26,10 +26,10 @@
 #'
 #'
 
-firstStage <- function(ylow, n, p, seas_levels, regMat = NULL,
-                       plotFlag = TRUE){
+firstStage <- function(ylow, n, p, seas_periods, regMat = NULL,
+                       plotFlag = FALSE){
 
-  yStg1 <- msts(ylow, seasonal.periods = seas_levels)
+  yStg1 <- msts(ylow, seasonal.periods = seas_periods)
 
   minPsi <- 1000000 # large value initialization
   for (d in 0:2)
@@ -68,7 +68,7 @@ firstStage <- function(ylow, n, p, seas_levels, regMat = NULL,
     xhat_Reg <- fit_Reg$fitted.values
     yhat_Reg <- predict(fit_Reg, newdata = regMat[n+(1:p),])
 
-    xregres <- msts(fit_Reg$residuals, seasonal.periods = seas_levels)
+    xregres <- msts(fit_Reg$residuals, seasonal.periods = seas_periods)
     fit_Reg_TBATS <- tbats(xregres)
     xhat_Reg_TBATS <- fit_Reg$fitted.values + fit_Reg_TBATS$fitted.values
     yhat_Reg_TBATS <- predict(fit_Reg_TBATS, h = p)$mean + yhat_Reg
