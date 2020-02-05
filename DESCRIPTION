@@ -1,0 +1,21 @@
+Package: twoStageForecast
+Type: Package
+Title: Models and forecasts time series with multiple levels of seasonality
+Version: 0.0.1
+Authors@R: c(
+    person("Anupama", "Lakshmanan",
+    email = "anupama.lakshmanan14@iimb.ac.in",
+    role = c("aut", "cre")
+    )
+ )
+Maintainer: <anupama.lakshmanan14@iimb.ac.in>
+Description: Models time series data with multiple levels of seasonality.
+      It achieves this in two stages. In the first stage, data is 
+      aggregated to a lower frequency and models are fitted. In the second 
+      stage, the seasonality is estimated for the high frequency data.
+      Finally, the two stages are combined.
+License: Artistic-1.0
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+
