@@ -20,7 +20,7 @@ twoStage.accuracy <- function(y, yhat) {
   # MAD
   MAD <- mean(abs(err))
   # MAPE
-  MAPE <- mean(abs(err/Y)) * 100
+  MAPE <- mean(abs(err/y)) * 100
 
   ErrVec <- cbind(MSE, MAD, paste(toString(MAPE),"%"))
   colnames(ErrVec) <- c("MSE","MAD","MAPE")

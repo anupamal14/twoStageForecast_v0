@@ -14,6 +14,6 @@
 #'
 
 
-twoStage.penalizedLikelihood <- function(MSE, n, p) {
+twoStage.penalizedLikelihood <- function(n, MSE, p) {
   psi <- n*log(MSE) + 2*p
 }

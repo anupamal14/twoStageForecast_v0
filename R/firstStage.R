@@ -19,7 +19,7 @@
 #'
 #' @examples
 #'
-#' @importFrom forecast tbats msts
+#' @importFrom forecast tbats msts auto.arima
 #' @importFrom stats arima predict
 #'
 #' @export
@@ -56,13 +56,16 @@ firstStage <- function(ylow, n, p, seas_periods, regMat = NULL,
 
   stage1 <- list()
   stage1$tbats$model <- fit_TBATS
-  stage1$tbats$accuracy <- cbind(twoStage.accuracy(fit_TBATS$fitted.values,xAct),
+  stage1$tbats$accuracy <- rbind(twoStage.accuracy(fit_TBATS$fitted.values,xAct),
                                  twoStage.accuracy(yhat_TBATS,yAct))
-  stage1$arima$model <- fit_ARIMA
-  stage1$arima$accuracy <- cbind(twoStage.accuracy(xhat_ARIMA,xAct),
-                                 twoStage.accuracy(yhat_ARIMA,yAct))
+  rownames(stage1$tbats$accuracy) <- c('In-sample','Hold-out')
 
-  if (~is.null(regMat)){
+  stage1$arima$model <- fit_ARIMA
+  stage1$arima$accuracy <- rbind(twoStage.accuracy(xhat_ARIMA,xAct),
+                                 twoStage.accuracy(yhat_ARIMA,yAct))
+  rownames(stage1$arima$accuracy) <- c('In-sample','Hold-out')
+
+  if (!is.null(regMat)){
     matrixForReg <- cbind(ylow, regMat)
     fit_Reg <- lm(ylow ~ ., matrixForReg[1:n,])
     xhat_Reg <- fit_Reg$fitted.values
@@ -86,15 +89,19 @@ firstStage <- function(ylow, n, p, seas_periods, regMat = NULL,
     yhat_Reg_ARIMA <-  yhat_Reg - predict(fit_reg_ARIMA, n.ahead = p)$pred
 
     stage1$reg$model <- fit_Reg
-    stage1$reg$accuracy <- cbind(twoStage.accuracy(xhat_Reg,xAct),
+    stage1$reg$accuracy <- rbind(twoStage.accuracy(xhat_Reg,xAct),
                                 twoStage.accuracy(yhat_Reg,yAct))
+    rownames(stage1$reg$accuracy) <- c('In-sample','Hold-out')
+
     stage1$regResTBATS$model <- fit_Reg_TBATS
-    stage1$regResTBATS$accuracy <- cbind(twoStage.accuracy(xhat_Reg_TBATS,xAct),
+    stage1$regResTBATS$accuracy <- rbind(twoStage.accuracy(xhat_Reg_TBATS,xAct),
                                          twoStage.accuracy(yhat_Reg_TBATS,yAct))
+    rownames(stage1$regResTBATS$accuracy) <- c('In-sample','Hold-out')
 
     stage1$regResARIMA$model <- fit_reg_ARIMA
-    stage1$regResARIMA$accuracy <- cbind(twoStage.accuracy(xhat_Reg_ARIMA,xAct),
+    stage1$regResARIMA$accuracy <- rbind(twoStage.accuracy(xhat_Reg_ARIMA,xAct),
                              twoStage.accuracy(yhat_Reg_ARIMA,yAct))
+    rownames(stage1$regResARIMA$accuracy) <- c('In-sample','Hold-out')
 
 
     if(plotFlag){

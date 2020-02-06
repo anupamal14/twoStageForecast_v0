@@ -17,22 +17,50 @@
 auto.twoStage <- function(d, n = NULL, p = NULL, seas_periods = NULL, dReg = NULL,
                           plotFlag = FALSE) {
   # number of levels
-  levels <- length(seas_periods)
+  nrLevels <- length(seas_periods)
   len <- length(d)
   if (is.null(n) & is.null(p)) {
-    p <- seas_periods[levels()]
+    p <- seas_periods[nrLevels]
     n <- len - p
   }
 
-  meanBy <- as.vector(t(matrix(rep(c(1:ceiling(len/seas_periods[3])),seas_periods[3]),
-                               nrow = ceiling(len/seas_periods[3]))))
+  if (nrLevels == 1) {
+    final <- firstStage(d, n, p, seas_periods, plotFlag = plotFlag)
+
+    # Prepare output
+    modNames <- c('TBATS', 'ARIMA')
+    matchNames <- c('tbats','arima')
+    psiMat <- array(length(final))
+    psiMat[1] <- twoStage.penalizedLikelihood(n,
+                                              as.double(final$tbats$accuracy[1]),
+                                              length(final$tbats$model$parameters$vect) +
+                                                length(final$tbats$model$seed.states))
+    psiMat[2] <- twoStage.penalizedLikelihood(n,
+                                              as.double(final$arima$accuracy[1]),
+                                              length(final$arima$model$coef) + 1)
+    myCall <- gsub("language", "Call: ",str(sys.call()))
+    cat(paste(myCall,
+                    "Seasonality level selected: Not applicable",
+                    paste("First Stage method: ", modNames[which.min(psiMat)]),
+                    "Second Stage method: Not applicable",
+                    " ",
+                    paste("psi: ",psiMat[which.min(psiMat)]),
+              " ",
+                    "Error measures:",
+              "MSE                                    MAD                                MAPE",
+                    toString(eval(parse(text=gsub(" ","",paste("final$",matchNames[which.min(psiMat)],"$accuracy"))))),
+              sep="\n"))
+  } else {
+  meanBy <- as.vector(t(matrix(rep(c(1:ceiling(len/seas_periods[2])),seas_periods[2]),
+                               nrow = ceiling(len/seas_periods[2]))))
   d2 <- aggregate(d,by = list(meanBy[1:len]),mean)
   ylow <- d2$x
 
   # First Stage
-  stage1 <- firstStage(ylow, n, p, seas_periods, regMat, plotFlag)
+  stage1 <- firstStage(ylow, n/seas_periods[2], p/seas_periods[2], seas_periods[1], regMat, plotFlag)
   # Second Stage
   stage2 <- secondStage(d, seas_periods)
   # Combine the output of the two stages
+  }
 
 }
